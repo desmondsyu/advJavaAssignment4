@@ -7,6 +7,7 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -65,7 +66,7 @@ public class PersonGui extends Application{
 		mainPane.setVgap(15);
 		
 		// set scene and it's content
-		Scene scene = new Scene(mainPane, 500, 500);
+		Scene scene = new Scene(mainPane, 400, 400);
 		
 		// set style for stage
 		primaryStage.setTitle("Random File Processing");
@@ -78,17 +79,10 @@ public class PersonGui extends Application{
 		// button action
 		addButton.setOnAction(e -> {
 			Person person;
-			
-			try {
-				int recordNum = Integer.parseInt(recordText.getText());
-			}
-			catch(NumberFormatException ex) {
-				System.out.println("Please enter an integer for record#.");
-			}
 						
 			try {
-				
-				String fname = fNameText.getText();
+				int recordNum = Integer.parseInt(recordText.getText());
+				String fname = fNameText.getText(); 
 				String lname = lNameText.getText();
 				String phone = phoneText.getText();
 				int age = Integer.parseInt(ageText.getText());
@@ -96,16 +90,24 @@ public class PersonGui extends Application{
 				person = new Person(fname, lname, phone, age);
 			}
 			catch(NumberFormatException ex) {
-				System.out.println("Please input an integer for age.");
+				popAlert("Please input an integer for record# and age.");
 			}
 			catch(Exception ex) {
-				System.out.println(ex.getMessage());
+				popAlert(ex.getMessage());
 			}
 		});
 		
 		findButton.setOnAction(e -> {
 			
 		});
+	}
+	
+	private void popAlert(String message) {
+		Alert alert = new Alert(Alert.AlertType.WARNING);
+		alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
 	}
 	
 }
