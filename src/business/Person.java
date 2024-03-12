@@ -17,6 +17,7 @@ public class Person {
 	}
 	
 	public Person(String firstName, String lastName, String phone, int age) {
+		
 		this.setFristName(firstName);
 		this.setLastName(lastName);
 		this.setPhone(phone);
@@ -28,24 +29,36 @@ public class Person {
 		return firstName;
 	}
 	public void setFristName(String fristName) {
+		if(fristName.length() > FNAME_SIZE) {
+			throw new IllegalArgumentException("First name cannot exceed " + FNAME_SIZE + " characters.");
+		}
 		this.firstName = fristName;
 	}
 	public String getLastName() {
 		return lastName;
 	}
 	public void setLastName(String lastName) {
+		if(lastName.length() > LNAME_SIZE) {
+			throw new IllegalArgumentException("Last name cannot exceed " + LNAME_SIZE + " characters.");
+		}
 		this.lastName = lastName;
 	}
 	public String getPhone() {
 		return phone;
 	}
 	public void setPhone(String phone) {
+		if(phone.length() > PHONE_SIZE) {
+			throw new IllegalArgumentException("Phone number cannot exceed " + PHONE_SIZE + " characters.");
+		}
 		this.phone = phone;
 	}
 	public int getAge() {
 		return age;
 	}
 	public void setAge(int age) {
+		if(age < 0) {
+			throw new IllegalArgumentException("Age cannot be negative.");
+		}
 		this.age = age;
 	}
 	 
