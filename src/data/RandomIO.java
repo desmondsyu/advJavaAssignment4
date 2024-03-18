@@ -1,102 +1,78 @@
 package data;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 
 import business.Person;
 
 public class RandomIO {
-    private RandomAccessFile file;
 
-    // Constructor to open the file
-    public RandomIO(String filename) throws FileNotFoundException {
-        try {
-            file = new RandomAccessFile(filename, "rw");
-        } catch (FileNotFoundException e) {
-            // If file not found, create a new one
-            try {
-                file = new RandomAccessFile(filename, "rw");
-            } catch (FileNotFoundException ex) {
-                // Re-throw the exception if file still cannot be created
-                throw new FileNotFoundException("File cannot be created: " + filename);
-            }
+    private static final String FILE_NAME = "persons.dat"; // Binary file name
+
+    // Method to add person to the binary file
+    public static void addPerson(Person person) {
+        try (RandomAccessFile file = new RandomAccessFile(FILE_NAME, "rw")) {
+            long fileLength = file.length();
+            file.seek(fileLength); // Move file pointer to end
+
+            // Write person data to file
+            writeString(file, person.getFirstName(), Person.MAX_FIRST_NAME_LENGTH);
+            writeString(file, person.getLastName(), Person.MAX_LAST_NAME_LENGTH);
+            writeInt(file, person.getAge());
+            writeString(file, person.getPhone(), Person.MAX_PHONE_LENGTH);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    }
-
-    // Method to close the file
-    public void close() throws IOException {
-        if (file != null) {
-            file.close();
-        }
-    }
-
-    // Method to add a person to the binary file
-    public void addPerson(Person person) throws IOException {
-        long position = file.length();
-        file.seek(position);
-
-        // Write person data to the file
-        writeString(person.getFirstName(), Person.FNAME_SIZE);
-        writeString(person.getLastName(), Person.LNAME_SIZE);
-        writeString(person.getPhone(), Person.PHONE_SIZE);
-        file.writeInt(person.getAge());
     }
 
     // Method to find a person based on record number and return person
-    public Person findPerson(int recordNumber) throws IOException {
-        long position = recordNumber * (Person.FNAME_SIZE + Person.LNAME_SIZE + Person.PHONE_SIZE + 4);
-        if (position >= file.length() || recordNumber < 0) {
-            throw new IllegalArgumentException("Record number out of bounds: " + recordNumber);
-        }
+    public static Person findPerson(int recordNumber) {
+        try (RandomAccessFile file = new RandomAccessFile(FILE_NAME, "r")) {
+            long position = (recordNumber - 1) * calculateRecordSize(); // Calculate position in file
+            if (position < 0 || position >= file.length()) {
+                System.out.println("Record not found.");
+                return null;
+            }
+            file.seek(position); // Move file pointer to the position
 
-        file.seek(position);
-
-        // Read person data from the file
-        String firstName = readString(Person.FNAME_SIZE);
-        String lastName = readString(Person.LNAME_SIZE);
-        String phone = readString(Person.PHONE_SIZE);
-        int age = file.readInt();
-
-        return new Person(firstName, lastName, phone, age);
-    }
-
-    // Method to return all persons from the file
-    public List<Person> getAllPersons() throws IOException {
-        List<Person> persons = new ArrayList<>();
-        file.seek(0);
-
-        while (file.getFilePointer() < file.length()) {
-            String firstName = readString(Person.FNAME_SIZE);
-            String lastName = readString(Person.LNAME_SIZE);
-            String phone = readString(Person.PHONE_SIZE);
+            // Read person data from file
+            String firstName = readString(file, Person.MAX_FIRST_NAME_LENGTH);
+            String lastName = readString(file, Person.MAX_LAST_NAME_LENGTH);
             int age = file.readInt();
+            String phone = readString(file, Person.MAX_PHONE_LENGTH);
 
-            persons.add(new Person(firstName, lastName, phone, age));
-        }
-
-        return persons;
-    }
-
-    // Method to write a string to the file with fixed size
-    private void writeString(String s, int size) throws IOException {
-        if (s != null) {
-            file.writeBytes(s);
-            int remaining = size - s.length();
-            for (int i = 0; i < remaining; i++) {
-                file.writeByte(0);
-            }
-        } else {
-            for (int i = 0; i < size; i++) {
-                file.writeByte(0);
-            }
+            return new Person(firstName, lastName, phone, age);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
-    // Method to read a string of fixed size from the file
-    private String readString(int size) throws IOException {
-        byte[] buffer = new byte[size];
-        file.readFully(buffer);
-        return new String(buffer).trim();
+    // Helper method to write a string to the file with fixed length
+    private static void writeString(RandomAccessFile file, String str, int maxLength) throws IOException {
+        byte[] bytes = new byte[maxLength];
+        byte[] strBytes = str.getBytes();
+        int length = Math.min(strBytes.length, maxLength);
+        System.arraycopy(strBytes, 0, bytes, 0, length);
+        file.write(bytes);
+    }
+
+    // Helper method to write an integer to the file
+    private static void writeInt(RandomAccessFile file, int value) throws IOException {
+        file.writeInt(value);
+    }
+
+    // Helper method to read a string from the file with fixed length
+    private static String readString(RandomAccessFile file, int maxLength) throws IOException {
+        byte[] bytes = new byte[maxLength];
+        file.readFully(bytes);
+        return new String(bytes).trim();
+    }
+
+    // Helper method to calculate the size of each record
+    private static int calculateRecordSize() {
+        return Person.MAX_FIRST_NAME_LENGTH +
+               Person.MAX_LAST_NAME_LENGTH +
+               Integer.BYTES +
+               Person.MAX_PHONE_LENGTH;
     }
 }
