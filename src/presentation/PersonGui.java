@@ -1,51 +1,58 @@
 package presentation; // Package declaration for the presentation layer
 
-import business.Person; 
-import data.RandomIO; 
-import javafx.application.Application; 
-import javafx.geometry.Insets; 
-import javafx.geometry.Pos; 
-import javafx.scene.Scene; 
-import javafx.scene.control.Alert; 
-import javafx.scene.control.Button; 
+import business.Person;
+import data.RandomIO;
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField; 
-import javafx.scene.layout.GridPane; 
-import javafx.stage.Stage; 
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class PersonGui extends Application {
 
+    TextField recordText;
+    TextField fNameText;
+    TextField lNameText;
+    TextField ageText;
+    TextField phoneText;
+
     public static void main(String[] args) {
-        launch(args); // Launching the JavaFX application
+        launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) {
 
-        // Labels and text fields for user input
+        // labels and text fields
         Label recordLabel = new Label("Record #");
-        Label fNameLabel = new Label("First Name");
-        Label lNameLabel = new Label("Last Name");
-        Label ageLabel = new Label("Age");
-        Label phoneLabel = new Label("Phone");
+        Label fNameLabel = new Label ("First Name");
+        Label lNameLabel = new Label ("Last Name");
+        Label ageLabel = new Label ("Age");
+        Label phoneLabel = new Label ("Phone");
 
-        TextField recordText = new TextField();
-        TextField fNameText = new TextField();
-        TextField lNameText = new TextField();
-        TextField ageText = new TextField();
-        TextField phoneText = new TextField();
+        recordText = new TextField();
+        fNameText = new TextField();
+        lNameText = new TextField();
+        ageText = new TextField();
+        phoneText = new TextField();
 
-        // Buttons for adding and finding records
+        // buttons
         Button addButton = new Button("Add");
         Button findButton = new Button("Find");
 
-        addButton.setPrefWidth(120); // Setting preferred width for buttons
+        addButton.setPrefWidth(120);
         findButton.setPrefWidth(120);
 
-        // Pane to arrange UI elements
+        // pane and element positions
         GridPane mainPane = new GridPane();
 
-        // Adding labels and text fields to the pane
         mainPane.add(recordLabel, 0, 0);
         mainPane.add(recordText, 1, 0);
         mainPane.add(fNameLabel, 0, 1);
@@ -59,89 +66,71 @@ public class PersonGui extends Application {
         mainPane.add(addButton, 0, 5);
         mainPane.add(findButton, 1, 5);
 
-        // Setting style and layout for the pane
+        // style for pane
         mainPane.setAlignment(Pos.CENTER);
         mainPane.setPadding(new Insets(20));
         mainPane.setHgap(30);
         mainPane.setVgap(15);
 
-        // Creating the scene and setting it to the stage
-        Scene scene = new Scene(mainPane, 400, 400); // Creating a scene with specified dimensions
+        // set scene and it's content
+        Scene scene = new Scene(mainPane, 400, 400);
 
-        primaryStage.setTitle("Random File Processing"); // Setting the title of the stage
-        primaryStage.setResizable(false); // Disabling window resizing
-        primaryStage.setScene(scene); // Setting the scene to the stage
-        primaryStage.show(); // Displaying the stage
+        // set style for stage
+        primaryStage.setTitle("Random File Processing");
+        primaryStage.setResizable(false);;
+        primaryStage.setScene(scene);
+        primaryStage.show();
 
-        // Button actions for adding and finding records
-        addButton.setOnAction(e -> { // Event handler for add button
-            Person person; // Creating a Person object
-            try {
-                // Parsing user input and creating a Person object
-                String fname = fNameText.getText();
-                String lname = lNameText.getText();
-                String phone = phoneText.getText();
-                int age = Integer.parseInt(ageText.getText());
-
-                person = new Person(fname, lname, phone, age); // Creating a new Person instance
-                RandomIO.addPerson(person); // Adding the Person to the file
-                popAlert("Person added successfully!"); // Displaying success message
-
-                // Clearing the text fields after successful addition
-                clearTextFields(recordText, fNameText, lNameText, phoneText, ageText);
-            } catch (NumberFormatException ex) {
-                popAlert("Please input an integer for record# and age."); // Handling invalid input format
-            } catch (IllegalArgumentException ex) {
-                popAlert(ex.getMessage()); // Handling invalid input values
-            } catch (Exception ex) {
-                popAlert(ex.getMessage()); // Handling other exceptions
-            }
-        });
-
-        findButton.setOnAction(e -> { // Event handler for find button
-            try {
-                int recordNumber = Integer.parseInt(recordText.getText()); // Parsing record number
-
-                if (recordNumber <= 0) { // Checking for valid record number
-                    popAlert("Record number must be greater than 0."); // Alerting user for invalid input
-                    return;
-                }
-
-                // Finding person based on record number
-                Person foundPerson = RandomIO.findPerson(recordNumber);
-
-                if (foundPerson != null) { // If person is found
-                    // Displaying found person's information
-                    fNameText.setText(foundPerson.getFirstName());
-                    lNameText.setText(foundPerson.getLastName());
-                    phoneText.setText(foundPerson.getPhone());
-                    ageText.setText(String.valueOf(foundPerson.getAge()));
-
-                    popAlert("Person found successfully!"); // Alerting user for success
-                } else {
-                    popAlert("Person not found."); // Alerting user if person not found
-                }
-            } catch (NumberFormatException ex) {
-                popAlert("Please input a valid integer for record number."); // Handling invalid input format
-            } catch (IllegalArgumentException ex) {
-                popAlert(ex.getMessage()); // Handling invalid input values
-            }
-        });
+        addButton.setOnAction(e -> addPerson(fNameText.getText(), lNameText.getText(), phoneText.getText(), ageText.getText()));
+        findButton.setOnAction(e -> findPerson(recordText.getText()));
     }
 
-    // Method to display alert messages
-    private void popAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING); // Creating a warning alert
-        alert.setTitle("Error"); // Setting alert title
-        alert.setHeaderText(null); // Setting header text
-        alert.setContentText(message); // Setting alert message
-        alert.showAndWait(); // Displaying the alert and waiting for user response
-    }
-
-    // Method to clear text fields
-    private void clearTextFields(TextField... textFields) {
-        for (TextField textField : textFields) { // Looping through text fields
-            textField.setText(""); // Clearing each text field
+    private void findPerson(String record) {
+        try {
+            Person person = RandomIO.findPerson(Integer.parseInt(record));
+            displayPersonInformation(person);
+        } catch(NumberFormatException e) {
+            popAlert("Record must be a number.");
+        } catch(Exception e) {
+            popAlert(e.getMessage());
         }
+    }
+    private void displayPersonInformation(Person person) {
+        fNameText.setText(person.getFirstName());
+        lNameText.setText(person.getLastName());
+        phoneText.setText(person.getPhone());
+        ageText.setText(String.valueOf(person.getAge()));
+    }
+
+    private void addPerson(String firstName, String lastName, String phone, String age) {
+        try {
+            RandomIO.addPerson(new Person(firstName, lastName, phone, Integer.parseInt(age)));
+            resetFields();
+            popAlert("New person added successfully!", "Success!");
+
+        } catch(NumberFormatException e) {
+            popAlert("Age must be a number.");
+        } catch(Exception e) {
+            popAlert(e.getMessage());
+        }
+    }
+
+    private void resetFields() {
+        recordText.setText("");
+        fNameText.setText("");
+        lNameText.setText("");
+        phoneText.setText("");
+        ageText.setText("");
+    }
+
+    private void popAlert(String message) {
+        popAlert(message, "Error");
+    }
+    private void popAlert(String message, String title) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
