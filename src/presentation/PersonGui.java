@@ -15,16 +15,12 @@ import javafx.stage.Stage;
 
 public class PersonGui extends Application {
 
-    private RandomIO randomIO; // Instance variable to handle file operations
-
     public static void main(String[] args) {
         launch(args); // Launching the JavaFX application
     }
 
     @Override
     public void start(Stage primaryStage) {
-
-        randomIO = new RandomIO(); // Initializing the RandomIO instance
 
         // Labels and text fields for user input
         Label recordLabel = new Label("Record #");
@@ -82,14 +78,13 @@ public class PersonGui extends Application {
             Person person; // Creating a Person object
             try {
                 // Parsing user input and creating a Person object
-                int recordNum = Integer.parseInt(recordText.getText());
                 String fname = fNameText.getText();
                 String lname = lNameText.getText();
                 String phone = phoneText.getText();
                 int age = Integer.parseInt(ageText.getText());
 
                 person = new Person(fname, lname, phone, age); // Creating a new Person instance
-                randomIO.addPerson(person); // Adding the Person to the file
+                RandomIO.addPerson(person); // Adding the Person to the file
                 popAlert("Person added successfully!"); // Displaying success message
 
                 // Clearing the text fields after successful addition
@@ -113,7 +108,7 @@ public class PersonGui extends Application {
                 }
 
                 // Finding person based on record number
-                Person foundPerson = randomIO.findPerson(recordNumber);
+                Person foundPerson = RandomIO.findPerson(recordNumber);
 
                 if (foundPerson != null) { // If person is found
                     // Displaying found person's information
