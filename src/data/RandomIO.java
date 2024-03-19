@@ -15,10 +15,10 @@ public class RandomIO {
             file.seek(fileLength); // Move file pointer to end
 
             // Write person data to file
-            writeString(file, person.getFirstName(), Person.MAX_FIRST_NAME_LENGTH);
-            writeString(file, person.getLastName(), Person.MAX_LAST_NAME_LENGTH);
+            writeString(file, person.getFirstName(), Person.FNAME_SIZE);
+            writeString(file, person.getLastName(), Person.LNAME_SIZE);
             writeInt(file, person.getAge());
-            writeString(file, person.getPhone(), Person.MAX_PHONE_LENGTH);
+            writeString(file, person.getPhone(), Person.PHONE_SIZE);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -35,10 +35,10 @@ public class RandomIO {
             file.seek(position); // Move file pointer to the position
 
             // Read person data from file
-            String firstName = readString(file, Person.MAX_FIRST_NAME_LENGTH);
-            String lastName = readString(file, Person.MAX_LAST_NAME_LENGTH);
+            String firstName = readString(file, Person.FNAME_SIZE);
+            String lastName = readString(file, Person.LNAME_SIZE);
             int age = file.readInt();
-            String phone = readString(file, Person.MAX_PHONE_LENGTH);
+            String phone = readString(file, Person.PHONE_SIZE);
 
             return new Person(firstName, lastName, phone, age);
         } catch (IOException e) {
@@ -70,9 +70,9 @@ public class RandomIO {
 
     // Helper method to calculate the size of each record
     private static int calculateRecordSize() {
-        return Person.MAX_FIRST_NAME_LENGTH +
-               Person.MAX_LAST_NAME_LENGTH +
+        return Person.FNAME_SIZE +
+               Person.LNAME_SIZE +
                Integer.BYTES +
-               Person.MAX_PHONE_LENGTH;
+               Person.PHONE_SIZE;
     }
 }
